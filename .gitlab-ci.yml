@@ -1,0 +1,38 @@
+stages:
+  - build
+  - upload
+  - publish
+
+before_script:
+  - ruby -v
+  
+plugin:
+  stage: build
+  script:
+    - ruby scripts/build_unity_package.rb
+  artifacts:
+    paths:
+      - ChocolatePlatformAds.unitypackage
+  only:
+    refs:
+      - master
+    changes:
+      - SampleApp/**/*
+
+upload_plugin:
+  stage: upload
+  before_script:
+    - apt-get update
+    - export DEBIAN_FRONTEND=noninteractive
+    - apt-get install -yq zip unzip
+    - zip -v
+    - apt-get install -yq awscli
+    - aws --v
+  script:
+    - ruby scripts/upload_unity_package.rb
+  only:
+    refs:
+      - master
+    changes:
+      - scripts/release_spec.json
+
