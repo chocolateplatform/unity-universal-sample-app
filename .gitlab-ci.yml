@@ -5,7 +5,7 @@ stages:
 
 before_script:
   - ruby -v
-  
+
 plugin:
   stage: build
   script:
@@ -14,7 +14,7 @@ plugin:
     - mac
   artifacts:
     paths:
-      - ChocolatePlatformAds.unitypackage
+      - SampleApp/ChocolatePlatformAds.unitypackage
   only:
     refs:
       - master
@@ -37,4 +37,3 @@ upload_plugin:
       - master
     changes:
       - scripts/release_spec.json
-

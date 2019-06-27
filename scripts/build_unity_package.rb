@@ -11,7 +11,7 @@ def build
   cmd = "(cd #{PROJ_DIR} && "
   cmd += "#{UNITY_EX} -nographics -batchmode -quit -projectPath `pwd` "
   cmd += "-exportPackage Assets/Plugins Assets/Scripts Assets/Editor "
-  cmd += "#{ENV['TMPDIR']}#{PKG_NAME}"
+  cmd += "#{PKG_NAME}"
   cmd += ")"
   puts cmd
   system(cmd)
