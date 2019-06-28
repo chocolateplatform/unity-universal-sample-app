@@ -12,7 +12,7 @@ PKG_NAME = 'ChocolatePlatformAds.unitypackage'
 VER_FILE = "#{SCRIPT_DIR}/versions.json"
 
 def versioned_file(version)
-  "#{PKG_NAME}#{RLS_TAGN}#{vers}"
+  "#{PKG_NAME}#{RLS_TAGN}#{version}"
 end
 
 ## -- Running script --
