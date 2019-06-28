@@ -10,11 +10,12 @@ plugin:
   stage: build
   script:
     - ruby scripts/build_unity_package.rb
+    - mv SampleApp/ChocolatePlatformAds.unitypackage .
   tags:
     - mac
   artifacts:
     paths:
-      - SampleApp/ChocolatePlatformAds.unitypackage
+      - ChocolatePlatformAds.unitypackage
   only:
     refs:
       - master
