@@ -6,7 +6,7 @@
 require 'json'
 
 SCRIPT_DIR = File.expand_path(File.dirname(__FILE__))
-RLS_TAGN = '_release_v'
+RLS_TAGN = '_v'
 AWS_LOCN = 's3://vdopia-sdk-files'
 PKG_NAME = 'ChocolatePlatformAds'
 PKG_EXTN = '.unitypackage'
