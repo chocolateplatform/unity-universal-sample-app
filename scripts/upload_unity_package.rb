@@ -9,7 +9,7 @@ SCRIPT_DIR = File.expand_path(File.dirname(__FILE__))
 RLS_TAGN = '_release_v'
 AWS_LOCN = 's3://vdopia-sdk-files'
 PKG_NAME = 'ChocolatePlatformAds.unitypackage'
-VER_FILE = "#{SCRIPT_DIR}/sdk_versions.json"
+VER_FILE = "#{SCRIPT_DIR}/versions.json"
 
 def versioned_file(version)
   "#{PKG_NAME}#{RLS_TAGN}#{vers}"
