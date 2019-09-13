@@ -96,12 +96,12 @@ public class Main : MonoBehaviour,
 		GUITextMessage.enabled = false;
 
     string apiKey = "";
-    if(ChocolateUnityBridge.iOSEnvironment()) {
+#if UNITY_IOS
       apiKey = "X4mdFv";
-    } else if(ChocolateUnityBridge.AndroidEnvironment()) {
-      apiKey = "XqjhRR";
-    }
-
+#endif
+#if UNITY_ANDROID
+        apiKey = "XqjhRR";
+#endif
     ChocolateUnityBridge.initWithAPIKey(apiKey);
     ChocolateUnityBridge.SetAdRequestTestMode(true,"dinosaur");
 

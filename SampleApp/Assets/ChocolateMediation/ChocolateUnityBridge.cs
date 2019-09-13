@@ -183,8 +183,8 @@ namespace Chocolate
             {
                 VDONativePlugin.Call("LoadInterstitialAd", apiKeyFromInit);
             }
-        }
 #endif
+        }
 
         public static void showInterstitialAd()
         {
@@ -211,8 +211,8 @@ namespace Chocolate
             {
                 VDONativePlugin.Call("LoadRewardAd", apiKeyFromInit);
             }
-        }
 #endif
+        }
 
         public static void showRewardAd(int rewardAmount, string rewardName, string userId, string secretKey)
         {
@@ -227,8 +227,8 @@ namespace Chocolate
             {
                 VDONativePlugin.Call("ShowRewardAd", secretKey, userId, rewardName, "" + rewardAmount);
             }
-        }
 #endif
+        }
 
 
         public static void SetAdRequestUserParams(int age, string birthDate, string gender, string maritalStatus, string ethnicity,
