@@ -10,12 +10,19 @@
 #import <ChocolatePlatform_SDK_Core/ChocolatePlatform_SDK_Core.h>
 
 
-@interface ChocolateListener : NSObject <ChocolatePlatformInterstitialAdDelegate,ChocolatePlatformRewardAdDelegate> {
+@interface ChocolateListener : NSObject <ChocolateAdDelegate> {
     NSString *unityListenerName; //class name in unity to send callbacks to
+    ChocolateInterstitialAd *interstitial;
+    ChocolateRewardedAd *rewarded;
 }
 
 -(void)makeUnityCallback:(NSString *)function withMessage:(NSString *)message;
 -(NSString *)baseFuncName:(SEL)method;
+
+-(void)loadInterstitial;
+-(void)showInterstitial;
+-(void)loadRewarded;
+-(void)showRewarded:(ChocolateReward *)reward;
 
 @end
 
@@ -39,60 +46,72 @@
     return [NSStringFromSelector(method) componentsSeparatedByString:@":"].firstObject;
 }
 
+#pragma mark - API bridge
 
-#pragma mark - Interstitial Ad Delegate
-
-- (void)onInterstitialLoaded:(ChocolatePlatformInterstitialAdDisplay*)interstitialAd {
-    [self makeUnityCallback:[self baseFuncName:_cmd] withMessage:@""];
+-(void)loadInterstitial {
+    interstitial = [[ChocolateInterstitialAd alloc] initWithDelegate:self];
+    [interstitial load];
 }
 
-- (void)onInterstitialFailed:(ChocolatePlatformInterstitialAdDisplay*)interstitialAd errorCode:(ChocolatePlatformNoAdReason)errorCode {
-//    NSString *methodName = [NSStringFromSelector(_cmd) componentsSeparatedByString:@":"].firstObject;
-    [self makeUnityCallback:[self baseFuncName:_cmd] withMessage:[NSString stringWithFormat:@"%d",(int)errorCode]];
+-(void)showInterstitial {
+    [interstitial showFrom:[self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController]];
 }
 
-- (void)onInterstitialShown:(ChocolatePlatformInterstitialAdDisplay*)interstitialAd {
-    [self makeUnityCallback:[self baseFuncName:_cmd] withMessage:@""];
+-(void)loadRewarded {
+    rewarded = [[ChocolateRewardedAd alloc] initWithDelegate:self];
+    [rewarded load];
 }
 
-- (void)onInterstitialClicked:(ChocolatePlatformInterstitialAdDisplay*)interstitialAd {
-    [self makeUnityCallback:[self baseFuncName:_cmd] withMessage:@""];
+-(void)showRewarded:(ChocolateReward *)reward {
+    rewarded.reward = reward;
+    [rewarded showFrom:[self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController]];
 }
 
-- (void)onInterstitialDismissed:(ChocolatePlatformInterstitialAdDisplay*)interstitialAd {
-    [self makeUnityCallback:[self baseFuncName:_cmd] withMessage:@""];
+#pragma mark - ChocolateAdDelegate
+
+-(void)onChocolateAdLoaded:(ChocolateAd *)ad {
+    if(ad == interstitial) {
+        [self makeUnityCallback:@"onInterstitialLoaded" withMessage:@""];
+    } else if(ad == rewarded) {
+        [self makeUnityCallback:@"onRewardLoaded" withMessage:@""];
+    }
 }
 
-#pragma mark - Reward Ad Delegate
-
-- (UIViewController*)rewardAdViewControllerForPresentingModalView {
-    UIViewController* controller = [UIApplication sharedApplication].keyWindow.rootViewController;
-    
-    return [self visibleViewController:controller];
+-(void)onChocolateAdLoadFailed:(ChocolateAd *)ad because:(ChocolateAdNoAdReason)reason {
+    if(ad == interstitial) {
+        [self makeUnityCallback:@"onInterstitialFailed" withMessage:[NSString stringWithFormat:@"%ld",reason]];
+    } else if(ad == rewarded) {
+        [self makeUnityCallback:@"onRewardFailed" withMessage:[NSString stringWithFormat:@"%ld",reason]];
+    }
 }
 
-- (void)rewardedVideoDidLoadAd:(ChocolatePlatformRewardAdDisplay*)rewardedAd {
-    [self makeUnityCallback:@"onRewardLoaded" withMessage:@""];
+-(void)onChocolateAdShown:(ChocolateAd *)ad {
+    if(ad == interstitial) {
+        [self makeUnityCallback:@"onInterstitialShown" withMessage:@""];
+    } else if(ad == rewarded) {
+        [self makeUnityCallback:@"onRewardShown" withMessage:@""];
+    }
 }
 
-- (void)rewardedVideoDidFailToLoadAdWithError:(int)error rewardAdView:(ChocolatePlatformRewardAdDisplay*)rewardedAd {
-    [self makeUnityCallback:@"onRewardFailed" withMessage:[NSString stringWithFormat:@"%d",(int)error]];
+-(void)onChocolateAdClosed:(ChocolateAd *)ad {
+    if(ad == interstitial) {
+        [self makeUnityCallback:@"onInterstitialDismissed" withMessage:@""];
+    } else if(ad == rewarded) {
+        [self makeUnityCallback:@"onRewardDismissed" withMessage:@""];
+    }
 }
 
-- (void)rewardedVideoDidStartVideo:(ChocolatePlatformRewardAdDisplay*)rewardedAd {
-    [self makeUnityCallback:@"onRewardShown" withMessage:@""];
+//@optional
+-(void)onChocolateAdClicked:(ChocolateAd *)ad {
+    [self makeUnityCallback:@"onInterstitialClicked" withMessage:@""];
 }
 
-- (void)rewardedVideoDidFailToStartVideoWithError:(int)error rewardAdView:(ChocolatePlatformRewardAdDisplay*)rewardedAd {
-    [self makeUnityCallback:@"onRewardFailed" withMessage:[NSString stringWithFormat:@"%d",(int)error]];
+-(void)onChocolateAdFailedToStart:(ChocolateAd *)ad because:(ChocolateAdNoAdReason)reason {
+    [self makeUnityCallback:@"onRewardFailed" withMessage:[NSString stringWithFormat:@"%ld",reason]];
 }
 
-- (void)rewardedVideoWillDismiss:(ChocolatePlatformRewardAdDisplay*)rewardedAd {
-    [self makeUnityCallback:@"onRewardDismissed" withMessage:@""];
-}
-
-- (void)rewardedVideoDidFinish:(NSUInteger)rewardAmount name:(NSString *)rewardName {
-    NSString *rewardInfo = [NSString stringWithFormat:@"%d",(int)rewardAmount];
+-(void)onChocolateAdReward:(NSString *)rewardName amount:(NSInteger)rewardAmount {
+    NSString *rewardInfo = [NSString stringWithFormat:@"%ld",rewardAmount];
     rewardInfo = [rewardInfo stringByAppendingString:@","];
     rewardInfo = [rewardInfo stringByAppendingString:rewardName];
     
@@ -130,8 +149,7 @@
 
 
 static ChocolateListener *listener;
-static ChocolatePlatformInterstitialAdDisplay *interstitial;
-static ChocolatePlatformRewardAdDisplay *reward;
+
 
 void _initWithAPIKey(char *apiKey) {
     [ChocolatePlatform initWithAdUnitID:[NSString stringWithCString:apiKey encoding:NSASCIIStringEncoding]];
@@ -142,31 +160,24 @@ void _setupWithListener(char *listenerName) {
 }
 
 void _loadInterstitialAd(void) {
-    interstitial = [[ChocolatePlatformInterstitialAdDisplay alloc]
-                    initWithAdUnitID:[ChocolatePlatform getAdUnitID]
-                    delegate:listener
-                    viewControllerForPresentingModalView:[listener rewardAdViewControllerForPresentingModalView]];
-    [interstitial load];
+    [listener loadInterstitial];
 }
 
 void _showInterstitialAd(void) {
-    [interstitial show];
+    [listener showInterstitial];
 }
 
 void _loadRewardAd(void) {
-    reward = [[ChocolatePlatformRewardAdDisplay alloc]
-              initWithAdUnitID:[ChocolatePlatform getAdUnitID]
-              delegate:listener];
-    [reward load];
+    
 }
 
 void _showRewardAd(int rewardAmount,char* rewardName, char* userId, char* secretKey) {
-    ChocolatePlatformRewardAdSettings *set = [ChocolatePlatformRewardAdSettings blankSettings];
-    set.rewardName = [NSString stringWithCString:rewardName encoding:NSASCIIStringEncoding];
-    set.rewardAmount = rewardAmount;
-    set.userID = [NSString stringWithCString:userId encoding:NSASCIIStringEncoding];
-    set.secretKey = [NSString stringWithCString:secretKey encoding:NSASCIIStringEncoding];
-    [reward show:set];
+    ChocolateReward *rew = [ChocolateReward blankReward];
+    rew.rewardName = [NSString stringWithCString:rewardName encoding:NSASCIIStringEncoding];
+    rew.rewardAmount = rewardAmount;
+    rew.userID = [NSString stringWithCString:userId encoding:NSASCIIStringEncoding];
+    rew.secretKey = [NSString stringWithCString:secretKey encoding:NSASCIIStringEncoding];
+    [listener showRewarded:rew];
 }
 
 void _setDemograpics(int age, char* birthDate, char* gender, char* maritalStatus,

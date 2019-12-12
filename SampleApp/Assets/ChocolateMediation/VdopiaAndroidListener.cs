@@ -1,6 +1,5 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-#if UNITY_ANDROID
 namespace Chocolate
 {
     //Class used for receive Vdopia Ad Event from Java to Unity using AndroidJavaProxy implementation
@@ -43,4 +42,3 @@ namespace Chocolate
         }
     }
 }
-#endif

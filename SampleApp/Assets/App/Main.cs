@@ -86,7 +86,13 @@ public class Main : MonoBehaviour,
     ChocolateUnityBridge.setInterstitialAdListener(this);
     ChocolateUnityBridge.setRewardAdListener(this);
     listenerSetup = true;
-  }
+    //Debug.Log("Listener info:");
+    //Debug.Log("" + this.ToString() + " | " +
+    //            this.name + " | " +
+    //            this.tag + " | " +
+    //            this.gameObject.ToString() + " | " +
+    //            this.gameObject.tag);
+    }
 
 	IEnumerator Start()
 	{
@@ -368,15 +374,8 @@ public class Main : MonoBehaviour,
 
 	}
 
-	// /// <summary>
-	// /// Rewardeds the video did fail to start video with error.
-	// /// </summary>
-	// /// <param name="id">Identifier.</param>
-	// public void rewardedVideoDidFailToStartVideoWithError(string id)
-	// {
-	// 	Debug.Log ("Unity id:" + id);
-  //
-  //
-	// }
+	public string UnityName(){
+        return this.name;
+    }
 
 }

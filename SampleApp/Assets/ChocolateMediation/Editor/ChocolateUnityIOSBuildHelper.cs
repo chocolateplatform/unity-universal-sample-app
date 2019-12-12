@@ -89,13 +89,13 @@ public class ChocolateUnityIOSBuildHelper  {
 
   static string PodscriptSource {
     get {
-      return Path.Combine("./Assets/Editor", "pods.command");
+      return Path.Combine("./Assets/ChocolateMediation/Editor", "pods.command");
     }
   }
 
   static string OpenPodscriptSource {
     get {
-      return Path.Combine("./Assets/Editor", "open_pods.command");
+      return Path.Combine("./Assets/ChocolateMediation/Editor", "open_pods.command");
     }
   }
 
