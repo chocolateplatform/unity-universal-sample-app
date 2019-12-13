@@ -21,6 +21,7 @@ plugin:
       - master
     changes:
       - SampleApp/**/*
+      - scripts/versions.json
 
 upload_plugin:
   stage: upload
