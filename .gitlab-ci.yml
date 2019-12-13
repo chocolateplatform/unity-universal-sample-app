@@ -37,4 +37,4 @@ upload_plugin:
     refs:
       - master
     changes:
-      - scripts/release_spec.json
+      - scripts/versions.json
